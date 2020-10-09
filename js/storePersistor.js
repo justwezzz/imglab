@@ -44,4 +44,4 @@ var synchToBrowser = function() {
 };
 window.setInterval( synchToBrowser , appConfig.autosave.syncingInterval);
 
-setTimeout(confirmUserToLoadBrowserCache,1000);
+// setTimeout(confirmUserToLoadBrowserCache,1000);

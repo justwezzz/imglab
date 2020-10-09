@@ -22,34 +22,42 @@
     <script>
         var self = this;
 
-        $(document).on('click', function(event) {
+        $(document).on('click', function (event) {
             deselectAll();
             selectedElements = [];
         });
 
-        $(document).keyup(function(e) {
+        $(document).keyup(function (e) {
             if (e.keyCode == 46) {//del key
-                //Delete selected shape(s) with points
-                //Delete selected points
-                selectedElements.forEach(el => {
-                    /* $("[for="+ el.node.id+"]").remove(); */
-                    el.selectize(false, {
-                        deepSelect: true
-                    }) //unselect first
-                    if (el.typ === 'point') {
-                        detachPoint(el.attr("for"), el.node.id); //delete it from store
-                        el.remove(); //remove parent svg node
-                        eventBus.trigger('removeLabelPanelTag');
-                    } else {
-                        detachShape(el.node.id); //delete it from store
-                        el.parent().remove(); //remove parent svg node
-                        eventBus.trigger('removeLabelPanelTag')
-                    }
-                });
+                // //Delete selected shape(s) with points
+                // //Delete selected points
+                // selectedElements.forEach(el => {
+                //     /* $("[for="+ el.node.id+"]").remove(); */
+                //     el.selectize(false, {
+                //         deepSelect: true
+                //     }) //unselect first
+                //     if (el.typ === 'point') {
+                //         detachPoint(el.attr("for"), el.node.id); //delete it from store
+                //         el.remove(); //remove parent svg node
+                //         eventBus.trigger('removeLabelPanelTag');
+                //     } else {
+                //         detachShape(el.node.id); //delete it from store
+                //         el.parent().remove(); //remove parent svg node
+                //         eventBus.trigger('removeLabelPanelTag')
+                //     }
+                // });
 
-                selectedElements = [];
-                //delete all the points related to a polygon
-                //show snakebar to inform
+                // selectedElements = [];
+                // //delete all the points related to a polygon
+                // //show snakebar to inform
+
+                selectedElements.forEach(el => {
+                    // el.hide();
+                    chronology.add({
+                        up: function () { el.hide();el.data('hide',true); }
+                        , down: function () { el.show();el.data('hide',false); }
+                    })
+                })
             } else if (e.key === 'a' && e.altKey) {//TODO change this
                 //Select all the labels
                 selectAll();
@@ -77,16 +85,16 @@
                             .filter(point => point.typ == 'point')
                             .forEach(point => {
                                 featurePoints.push({
-                                  'type': point.typ,
-                                  'rbox': point.rbox(myCanvas)
+                                    'type': point.typ,
+                                    'rbox': point.rbox(myCanvas)
                                 });
                             });
 
                         copiedElements.push({
-                          'type': shape.type,
-                          'rbox': shape.rbox(myCanvas),
-                          'points': getPoints(shape),
-                          'featurePoints': featurePoints
+                            'type': shape.type,
+                            'rbox': shape.rbox(myCanvas),
+                            'points': getPoints(shape),
+                            'featurePoints': featurePoints
                         });
                     }
                 })
@@ -145,7 +153,7 @@
         /**
          * Updates workarea when self.update() is called or when workarea changes
          */
-        this.on('update', function() {
+        this.on('update', function () {
             myCanvas.clear();
             drawOnCanvas();
         })
@@ -153,24 +161,24 @@
         /**
          * Removes listeners when unmounting tag to prevent multiple instances of keyup and click from firing
          */
-        this.on('unmount', function() {
+        this.on('unmount', function () {
             $(document).off('keyup');
             $(document).off('click');
             eventBus.off('removeWorkAreaFeaturePoint');
         });
 
-        this.on('mount', function() {
+        this.on('mount', function () {
             $("#canvas-container img").css("opacity", appConfig.imageOpacity || 1)
-            .css({"width": imgSelected.size.scaledWidth, "height": imgSelected.size.scaledHeight});
+                .css({ "width": imgSelected.size.scaledWidth, "height": imgSelected.size.scaledHeight });
 
             // this is needed so that everytime workarea remounts the scale are correct
-            $("#work-canvas").attr({"width": imgSelected.size.scaledWidth, "height": imgSelected.size.scaledHeight});
+            $("#work-canvas").attr({ "width": imgSelected.size.scaledWidth, "height": imgSelected.size.scaledHeight });
 
             myCanvas = new SVG('work-canvas').size(imgSelected.size.scaledWidth, imgSelected.size.scaledHeight)
 
             drawOnCanvas();
 
-            myCanvas.on('mousedown', function(event) {
+            myCanvas.on('mousedown', function (event) {
                 deselectAll();
 
                 if (selectedTool && selectedTool.type !== "point" && !alreadyDrawing && selectedTool.drawable) {
@@ -182,7 +190,7 @@
                     selectedElement = currentTool;
                 }
             });
-            myCanvas.on('mouseup', function(event) {
+            myCanvas.on('mouseup', function (event) {
                 if (selectedTool && selectedElement) selectedElement.draw(event);
             });
 
@@ -200,18 +208,18 @@
          * @param {SVGElement} shape - SVGElement to attach draw/resize listeners
          */
         function attachShapeListener(shape) {
-            shape.on('drawstart', function() {
+            shape.on('drawstart', function () {
                 alreadyDrawing = true;
             });
 
-            shape.on('drawcancel', function() {});
+            shape.on('drawcancel', function () { });
 
-            shape.on('resizedone', function() {
+            shape.on('resizedone', function () {
                 updateShapeDetailInStore(shape.node.id, shape.rbox(myCanvas),
-                getPoints(shape));
+                    getPoints(shape));
             });
 
-            shape.on('drawstop', function() {
+            shape.on('drawstop', function () {
                 alreadyDrawing = false;
                 if (!selectedTool.validate(shape)) { //Don't draw an element on accidentle click
                     shape.parent().remove();
@@ -226,49 +234,49 @@
         function attachEvents(currentTool) {
             moveOnlyOnMoveTool(currentTool);
 
-            onMouse(currentTool.parent(), function(e) { //drag callback : doesn't fire on click
+            onMouse(currentTool.parent(), function (e) { //drag callback : doesn't fire on click
                 if (currentTool.node.id === e.target.id) {
                     updateShapeDetailInStore(currentTool.node.id, currentTool.rbox(myCanvas), getPoints(
                         currentTool));
                     updateFeaturePoints(currentTool);
                 }
             });
-            currentTool.parent().on('click', function(e) {
-                    if (selectedTool && selectedTool.type === "point") {
-                        /**
-                         * The position of currentTool is relative to its parent <svg> tag
-                         * The position of point is also relative to the parent <svg> tag
-                         * Point needs to be relative to the canvas
-                         * so that its position is correct when redrawn
-                         */
-                        var point = getPointToDraw(e, currentTool, myCanvas.node.getBoundingClientRect());
-                        attachPointToShape(currentTool.node.id, point.node.id, point.rbox(myCanvas));//ina store
-                        attachEventsToFeaturePoint(point, currentTool);
-                    } else if (e.altKey) { //deep select. Helpful in case of polygon
+            currentTool.parent().on('click', function (e) {
+                if (selectedTool && selectedTool.type === "point") {
+                    /**
+                     * The position of currentTool is relative to its parent <svg> tag
+                     * The position of point is also relative to the parent <svg> tag
+                     * Point needs to be relative to the canvas
+                     * so that its position is correct when redrawn
+                     */
+                    var point = getPointToDraw(e, currentTool, myCanvas.node.getBoundingClientRect());
+                    attachPointToShape(currentTool.node.id, point.node.id, point.rbox(myCanvas));//ina store
+                    attachEventsToFeaturePoint(point, currentTool);
+                } else if (e.altKey) { //deep select. Helpful in case of polygon
+                    deselectAll();
+                    currentTool.selectize({
+                        rotationPoint: false,
+                        deepSelect: true
+                    });
+                    selectedElements.push(currentTool);
+                } else {
+                    if (!e.ctrlKey) { //deselect rest selected elements
                         deselectAll();
-                        currentTool.selectize({
-                            rotationPoint: false,
-                            deepSelect: true
-                        });
-                        selectedElements.push(currentTool);
-                    } else {
-                        if (!e.ctrlKey) { //deselect rest selected elements
-                            deselectAll();
-                            riot.mount('label-panel', { id : currentTool.node.id })
-                        }
-                        //select currnt element
-                        currentTool.selectize({
-                            rotationPoint: false
-                        });
-                        selectedElements.push(currentTool);
+                        riot.mount('label-panel', { id: currentTool.node.id })
                     }
-                    e.stopPropagation();
-                } //click call back
+                    //select currnt element
+                    currentTool.selectize({
+                        rotationPoint: false
+                    });
+                    selectedElements.push(currentTool);
+                }
+                e.stopPropagation();
+            } //click call back
             );
         }
 
         function moveOnlyOnMoveTool(el) {
-            el.on('mousedown', function(e) {
+            el.on('mousedown', function (e) {
                 if (!selectedTool || selectedTool.type !== "move") {
                     e.preventDefault();
                     e.stopPropagation();
@@ -282,14 +290,14 @@
                 for: parent.node.id
             })
 
-            onMouse(f_point, function(e) { //drag callback: doesn't fire on click
+            onMouse(f_point, function (e) { //drag callback: doesn't fire on click
                 updateFeaturePointPosition(f_point);
             });
 
-            f_point.on('click', function(e) {
+            f_point.on('click', function (e) {
                 if (!e.ctrlKey) { //deselect rest selected elements
                     deselectAll();
-                    riot.mount('label-panel', { id : parent.node.id, pointId : f_point.node.id })
+                    riot.mount('label-panel', { id: parent.node.id, pointId: f_point.node.id })
                 }
                 f_point.selectize({
                     rotationPoint: false,
@@ -303,13 +311,13 @@
         //This is a workaround of dragend event. This way it stops firing click event
         function onMouse(shape, dragCB) {
             var mousestate = 0;
-            shape.on('mousedown', function(e) {
+            shape.on('mousedown', function (e) {
                 mousestate = 1;
                 // TODO: Remove
-                shape.on('mousemove', function(e) {
+                shape.on('mousemove', function (e) {
                     mousestate = 2;
                 });
-                shape.on('mouseup', function(e) {
+                shape.on('mouseup', function (e) {
                     if (mousestate === 2) {
                         dragCB && dragCB(e);
                     }
@@ -369,12 +377,12 @@
                 case "circle":
                     var box = shape.rbox(myCanvas);
                     return [box.cx, box.cy, shape.attr("r")];
-                    /* case "ellipse":
-                        var box = shape.rbox(myCanvas);
-                        return [box.cx, box.cy, box.rx, box.ry]; */
+                /* case "ellipse":
+                    var box = shape.rbox(myCanvas);
+                    return [box.cx, box.cy, box.rx, box.ry]; */
                 case "polygon":
                     //Polygon points are relative to it's container SVG
-                    var parentSvg = $('#'+shape.node.id).closest('svg');
+                    var parentSvg = $('#' + shape.node.id).closest('svg');
                     var calculatedPoints = [];
                     var vector = {
                         x: parseInt(parentSvg.attr("x"), 10) || 0,
@@ -384,14 +392,14 @@
                         calculatedPoints.push([ponitArr[0] + vector.x, ponitArr[1] + vector.y]);
                     });
                     return calculatedPoints;
-                    /* case "line":
-                        console.log(shape.array())
-                        points = [];
-                        break;
-                    case "path":
-                        console.log(shape.array())
-                        points = [];
-                        break; */
+                /* case "line":
+                    console.log(shape.array())
+                    points = [];
+                    break;
+                case "path":
+                    console.log(shape.array())
+                    points = [];
+                    break; */
             }
         }
 
@@ -438,15 +446,15 @@
                     //Add feature points
                     currentShape = circle;
                     break;
-                    /* case "ellipse":
-                        var ellipse = myCanvas.nested()
-                            .ellipse().radius(shape.points[2], shape.points[3])
-                            .move(shape.points[0],shape.points[1])
-                            .addClass('labelellipse shape')
-                            .resize();
-                        ellipse.parent().draggable();
-                        attachEvents(ellipse);
-                        //Add feature points */
+                /* case "ellipse":
+                    var ellipse = myCanvas.nested()
+                        .ellipse().radius(shape.points[2], shape.points[3])
+                        .move(shape.points[0],shape.points[1])
+                        .addClass('labelellipse shape')
+                        .resize();
+                    ellipse.parent().draggable();
+                    attachEvents(ellipse);
+                    //Add feature points */
                 case "polygon":
                     var poly = myCanvas.nested()
                         .polygon(scaleShapePoints(shape.points, scale, shape.type))

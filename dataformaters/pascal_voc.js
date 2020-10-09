@@ -24,8 +24,10 @@ var pascalVocFormater = {
     <segmented>0</segmented>`
         //Add images
         var image = labellingData[ imgSelected.name ];
-        for(var shape_i = 0 ; shape_i < image.shapes.length; shape_i++){
-            var shape = image.shapes[ shape_i ];
+        var shapes = image.shapes.filter(s=>$('#'+s.id).css('display') !== 'none');
+        // for(var shape_i = 0 ; shape_i < image.shapes.length; shape_i++){
+        for(var shape_i = 0 ; shape_i < shapes.length; shape_i++){
+            var shape = shapes[ shape_i ];
             exportData += `
     <object>
         <name>${shape.label}</name>
