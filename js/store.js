@@ -146,6 +146,7 @@ function scaleFeaturePoints(featurePoints, scale) {
 }
 
 function updateShapeDetailInStore(shapeId, bbox, points){
+    console.log('updateShapeDetailInStore');
     var shapes = labellingData[ imgSelected.name ].shapes;
     var shape = getShape(shapeId);
     var index = indexOf(shapes, "id", shapeId);

@@ -42,7 +42,7 @@
                 //         eventBus.trigger('removeLabelPanelTag');
                 //     } else {
                 //         detachShape(el.node.id); //delete it from store
-                //         el.parent().remove(); //remove parent svg node
+                //         el.remove(); //remove parent svg node
                 //         eventBus.trigger('removeLabelPanelTag')
                 //     }
                 // });
@@ -54,8 +54,20 @@
                 selectedElements.forEach(el => {
                     // el.hide();
                     chronology.add({
-                        up: function () { el.hide();el.data('hide',true); }
-                        , down: function () { el.show();el.data('hide',false); }
+                        up: function () { 
+                            let sid = el.id();
+                            let realShape = SVG.get(sid);
+                            realShape.hide();
+                            realShape.data('hide',true); 
+                        }
+                        , down: function () { 
+                            let sid = el.id();
+                            let realShape = SVG.get(sid);
+                            realShape.show();
+                            realShape.data('hide',false); 
+                            // el.show();
+                            // el.data('hide',false); 
+                        }
                     })
                 })
             } else if (e.key === 'a' && e.altKey) {//TODO change this
@@ -125,25 +137,25 @@
                 e.stopPropagation();
             } else if (e.key === 'ArrowLeft' && e.ctrlKey) {
                 selectedElements.forEach(el => {
-                    el.parent().dx(-1);
+                    el.dx(-1);
                 });
                 e.preventDefault();
                 e.stopPropagation();
             } else if (e.key === 'ArrowRight' && e.ctrlKey) {
                 selectedElements.forEach(el => {
-                    el.parent().dx(1);
+                    el.dx(1);
                 });
                 e.preventDefault();
                 e.stopPropagation();
             } else if (e.key === 'ArrowUp' && e.ctrlKey) {
                 selectedElements.forEach(el => {
-                    el.parent().dy(-1);
+                    el.dy(-1);
                 });
                 e.preventDefault();
                 e.stopPropagation();
             } else if (e.key === 'ArrowDown' && e.ctrlKey) {
                 selectedElements.forEach(el => {
-                    el.parent().dy(1);
+                    el.dy(1);
                 });
                 e.preventDefault();
                 e.stopPropagation();
@@ -222,7 +234,7 @@
             shape.on('drawstop', function () {
                 alreadyDrawing = false;
                 if (!selectedTool.validate(shape)) { //Don't draw an element on accidentle click
-                    shape.parent().remove();
+                    shape.remove();
                     shape.remove();
                 } else {
                     attachShapeData(shape);
@@ -232,16 +244,18 @@
         }
 
         function attachEvents(currentTool) {
+            console.log('attachEvents');
+
             moveOnlyOnMoveTool(currentTool);
 
-            onMouse(currentTool.parent(), function (e) { //drag callback : doesn't fire on click
+            onMouse(currentTool, function (e) { //drag callback : doesn't fire on click
                 if (currentTool.node.id === e.target.id) {
                     updateShapeDetailInStore(currentTool.node.id, currentTool.rbox(myCanvas), getPoints(
                         currentTool));
                     updateFeaturePoints(currentTool);
                 }
             });
-            currentTool.parent().on('click', function (e) {
+            currentTool.on('click', function (e) {
                 if (selectedTool && selectedTool.type === "point") {
                     /**
                      * The position of currentTool is relative to its parent <svg> tag
@@ -430,7 +444,7 @@
                         .addClass('labelbox shape')
                         .id(shape.id)
                         .resize();
-                    rect.parent().draggable();
+                    rect.draggable();
                     //Add feature points
                     currentShape = rect;
                     break;
@@ -442,7 +456,7 @@
                         .addClass('labelcircle shape')
                         .id(shape.id)
                         .resize();
-                    circle.parent().draggable();
+                    circle.draggable();
                     //Add feature points
                     currentShape = circle;
                     break;
@@ -452,7 +466,7 @@
                         .move(shape.points[0],shape.points[1])
                         .addClass('labelellipse shape')
                         .resize();
-                    ellipse.parent().draggable();
+                    ellipse.draggable();
                     attachEvents(ellipse);
                     //Add feature points */
                 case "polygon":
@@ -462,7 +476,7 @@
                         .addClass('labelpolygon shape')
                         .id(shape.id)
                         .resize();
-                    poly.parent().draggable();
+                    poly.draggable();
                     //Add feature points
                     currentShape = poly;
                     break;

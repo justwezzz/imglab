@@ -321,7 +321,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                         el.remove();
                     }else{
                         detachShape(el.node.id);
-                        el.parent().remove();
+                        el.remove();
                     }
                 });
 
@@ -359,7 +359,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                     currentTool.on('drawstop', function(){
                         alreadyDrawing = false;
                         if( !selectedTool.validate(currentTool)){
-                            currentTool.parent().remove();
+                            currentTool.remove();
                             currentTool.remove();
                         }else{
                             attachShapeData(currentTool);
@@ -379,14 +379,13 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
         } );
 
         function attachEvents(currentTool){
-
-            onMouse( currentTool.parent(),function(e){
+            onMouse( currentTool,function(e){
                 if(currentTool.node.id === e.target.id){
                     updateShapeDetailInStore(currentTool.node.id, currentTool.rbox(myCanvas), getPoints(currentTool));
                     updateFeaturePoints(currentTool);
                 }
             });
-            currentTool.parent().on('click',function(e) {
+            currentTool.on('click',function(e) {
                     if(selectedTool && selectedTool.type === "point"){
                         var point = selectedTool.create(e,currentTool);
                         attachEventsToFeaturePoint(point,currentTool);
@@ -436,6 +435,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                     mousestate = 2;
                 });
                 shape.on( 'mouseup', function(e) {
+                    console.log('mouseup');
                     if(mousestate === 2) {
                         dragCB && dragCB(e);
                     }
@@ -491,8 +491,8 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
 
                 var calculatedPoints = [];
                 var vector = {
-                    x: shape.parent().attr("x"),
-                    y: shape.parent().attr("y")
+                    x: shape.attr("x"),
+                    y: shape.attr("y")
                 }
                 shape.array().value.forEach(ponitArr => {
                     calculatedPoints.push([ ponitArr[0] + vector.x,  ponitArr[1] + vector.y]);
@@ -514,7 +514,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                         .addClass('labelbox shape')
                         .id(shapeId)
                         .resize();
-                    rect.parent().draggable();
+                    rect.draggable();
 
                     currentShape = rect;
 
@@ -527,7 +527,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                         .addClass('labelcircle shape')
                         .id(shapeId)
                         .resize();
-                    circle.parent().draggable();
+                    circle.draggable();
 
                     currentShape = circle;
                     break;
@@ -539,7 +539,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                         .addClass('labelpolygon shape')
                         .id(shapeId)
                         .resize();
-                    poly.parent().draggable();
+                    poly.draggable();
 
                     currentShape = poly;
                     break;

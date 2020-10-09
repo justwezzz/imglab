@@ -43,7 +43,7 @@
                     //Here we can check what attribute has already been set
                     //so that only remaining attributes can be displayed as hint
                     source: Object.keys( suggestedAttributes ),
-                    appendTo: $(e.target).parent() ,
+                    appendTo: $(e.target) ,
                     position: { at: "left bottom", of: $(e.target) },
                     messages: {
                         noResults: '',
@@ -60,11 +60,11 @@
 
         this.updateTextHint = function(e){
             if( !$(e.target).hasClass("ui-autocomplete-input") ){
-                var attrLbl = $(e.target).parent().prev().find("input").val();
+                var attrLbl = $(e.target).prev().find("input").val();
                 if(suggestedAttributes[ attrLbl ]){
                     $(e.target).autocomplete({
                         source : suggestedAttributes[ attrLbl ],
-                        appendTo: $(e.target).parent() ,
+                        appendTo: $(e.target) ,
                         position: { at: "left bottom", of: $(e.target) },
                         messages: {
                             noResults: '',

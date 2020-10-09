@@ -24,6 +24,7 @@ var tools = {
             create: function () {
                 var circle = myCanvas.nested().circle().radius().addClass('labelcircle shape')/* .draw() */;
                 circle.resize();
+                circle.draggable();
                 // circle.parent().draggable();
                 shapeEventHandler(circle);
                 return circle;
@@ -41,6 +42,7 @@ var tools = {
             create: function () {
                 var rect = myCanvas.nested().rect().addClass('labelbox shape')/* .draw() */;
                 rect.resize();
+                rect.draggable();
                 // rect.parent().draggable();
                 shapeEventHandler(rect);
                 return rect;
@@ -58,8 +60,8 @@ var tools = {
             create: function () {//TODO: bug: creating duplicate points
                 var poly = myCanvas.nested().polygon().addClass('labelpolygon shape')/* .draw() */;
                 poly.resize();
+                poly.draggable();
                 // poly.parent().draggable();
-                // poly.draggable();
                 shapeEventHandler(poly);
                 polygonEventHandler(poly);
 
@@ -108,7 +110,7 @@ function getPointToDraw(position, container, canvasOffset) {
     }
     // Feature point size should be local to each image
     var featurePointSize = labellingData[imgSelected.name].featurePointSize;
-    var point = container.parent().circle()
+    var point = container.circle()
         .radius(Math.floor(featurePointSize))
         .attr({
             cx: position.x - canvasOffset.x - containerOffset.x,
@@ -176,19 +178,21 @@ let shortcutsHandler = function () {
 shortcutsHandler();
 
 let shapeEventHandler = function (shape) {
-    shape.dblclick(function () {
+    // shape = shape.parent();
+    // let parentShape = shape.parent();
+    shape.on('dblclick',function () {
         toMoveMode();
     });
 
-    shape.draggable().on('beforedrag', function () {
+    shape.on('beforedrag', function () {
         console.log('beforedrag');
         shape.remember('oldX', shape.x())
         shape.remember('oldY', shape.y())
         shape.remember('oldZoomScale', imgSelected.size.imageScale)
     });
 
-    shape.draggable().on('dragend', function () {
-        console.log('dragend');
+    shape.on('dragend', function (e) {
+        console.log('dragend',e);
         var oldX = shape.remember('oldX')
             , oldY = shape.remember('oldY')
             , oldZoomScale = shape.remember('oldZoomScale')
@@ -202,6 +206,7 @@ let shapeEventHandler = function (shape) {
                 let x = Math.floor(newX * imgSelected.size.imageScale / oldZoomScale);
                 let y = Math.floor(newY * imgSelected.size.imageScale / oldZoomScale);
                 realShape.move(x, y);
+                updateShapeDetailInStore(realShape.id(), realShape.rbox(myCanvas), getPoints(realShape));
             }
             , down: function () { 
                 let sid = shape.id();
@@ -209,6 +214,7 @@ let shapeEventHandler = function (shape) {
                 let x = Math.floor(oldX * imgSelected.size.imageScale / oldZoomScale);
                 let y = Math.floor(oldY * imgSelected.size.imageScale / oldZoomScale);
                 realShape.move(x, y);
+                updateShapeDetailInStore(realShape.id(), realShape.rbox(myCanvas), getPoints(realShape));
             }
             , call: false //-> this makes sure the move is registered but not performed again after dragging
         })
@@ -216,6 +222,9 @@ let shapeEventHandler = function (shape) {
         shape.forget('oldX')
         shape.forget('oldY')
         shape.forget('oldZoomScale')
+        // e.preventDefault();
+        // shape.fire('mouseup');
+        // parentShape.fire('mouseup');
     });
 
     shape.on('resizestart', function (e) {
@@ -295,4 +304,40 @@ let polygonEventHandler = function(poly){
     // poly.on('drawpoint', function (e){
     //     console.log('drawpoint',e);
     // })
+}
+
+function getPoints(shape) {
+    var points;
+
+    switch (shape.type) {
+        case "rect":
+            var box = shape.rbox(myCanvas);
+            return [box.x, box.y, box.w, box.h];
+        case "circle":
+            var box = shape.rbox(myCanvas);
+            return [box.cx, box.cy, shape.attr("r")];
+        /* case "ellipse":
+            var box = shape.rbox(myCanvas);
+            return [box.cx, box.cy, box.rx, box.ry]; */
+        case "polygon":
+            //Polygon points are relative to it's container SVG
+            var parentSvg = $('#' + shape.node.id).closest('svg');
+            var calculatedPoints = [];
+            var vector = {
+                x: parseInt(parentSvg.attr("x"), 10) || 0,
+                y: parseInt(parentSvg.attr("y"), 10) || 0
+            }
+            shape.array().value.forEach(ponitArr => {
+                calculatedPoints.push([ponitArr[0] + vector.x, ponitArr[1] + vector.y]);
+            });
+            return calculatedPoints;
+        /* case "line":
+            console.log(shape.array())
+            points = [];
+            break;
+        case "path":
+            console.log(shape.array())
+            points = [];
+            break; */
+    }
 }
