@@ -1,7 +1,7 @@
 <shortcuts>
-        <i class="icon-keyboard"  onclick={showkeymaps}></i>
+    <i class="icon-keyboard" onclick={showkeymaps}></i>
     <script>
-        this.showkeymaps = function(){
+        this.showkeymaps = function () {
             $.dialog({
                 title: 'Keymap',
                 content: `
@@ -36,6 +36,8 @@
                     <tr><td><kbd>Alt</kbd> + <kbd>m</kbd></td><td> Move<td></tr>
                     <tr><td><kbd>Alt</kbd> + <kbd>+</kbd></td><td> Zoom<td></tr>
                     <tr><td><kbd>Alt</kbd> + <kbd>l</kbd></td><td> Light<td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>z</kbd></td><td>Undo<td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>y</kbd></td><td>Redo<td></tr>
                 </table>
                 `,
                 escapeKey: true,

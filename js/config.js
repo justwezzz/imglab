@@ -180,6 +180,7 @@ shortcutsHandler();
 let shapeEventHandler = function (shape) {
     // shape = shape.parent();
     // let parentShape = shape.parent();
+    console.log('shapeEventHandler');
     shape.on('dblclick',function () {
         toMoveMode();
     });
@@ -191,41 +192,47 @@ let shapeEventHandler = function (shape) {
         shape.remember('oldZoomScale', imgSelected.size.imageScale)
     });
 
-    shape.on('dragend', function (e) {
-        console.log('dragend',e);
-        var oldX = shape.remember('oldX')
-            , oldY = shape.remember('oldY')
-            , oldZoomScale = shape.remember('oldZoomScale')
-            , newX = shape.x()
-            , newY = shape.y()
-
-        chronology.add({
-            up: function () { 
-                let sid = shape.id();
-                let realShape = SVG.get(sid);
-                let x = Math.floor(newX * imgSelected.size.imageScale / oldZoomScale);
-                let y = Math.floor(newY * imgSelected.size.imageScale / oldZoomScale);
-                realShape.move(x, y);
-                updateShapeDetailInStore(realShape.id(), realShape.rbox(myCanvas), getPoints(realShape));
-            }
-            , down: function () { 
-                let sid = shape.id();
-                let realShape = SVG.get(sid);
-                let x = Math.floor(oldX * imgSelected.size.imageScale / oldZoomScale);
-                let y = Math.floor(oldY * imgSelected.size.imageScale / oldZoomScale);
-                realShape.move(x, y);
-                updateShapeDetailInStore(realShape.id(), realShape.rbox(myCanvas), getPoints(realShape));
-            }
-            , call: false //-> this makes sure the move is registered but not performed again after dragging
-        })
-
-        shape.forget('oldX')
-        shape.forget('oldY')
-        shape.forget('oldZoomScale')
-        // e.preventDefault();
-        // shape.fire('mouseup');
-        // parentShape.fire('mouseup');
+    shape.on('dragend',function(e){
+        console.log('dragend');
+        e.preventDefault();
+        e.stopPropagation();
     });
+
+    // shape.on('dragend', function (e) {
+    //     console.log('dragend',e);
+    //     var oldX = shape.remember('oldX')
+    //         , oldY = shape.remember('oldY')
+    //         , oldZoomScale = shape.remember('oldZoomScale')
+    //         , newX = shape.x()
+    //         , newY = shape.y()
+
+    //     chronology.add({
+    //         up: function () { 
+    //             let sid = shape.id();
+    //             let realShape = SVG.get(sid);
+    //             let x = Math.floor(newX * imgSelected.size.imageScale / oldZoomScale);
+    //             let y = Math.floor(newY * imgSelected.size.imageScale / oldZoomScale);
+    //             realShape.move(x, y);
+    //             // updateShapeDetailInStore(realShape.id(), realShape.rbox(myCanvas), getPoints(realShape));
+    //         }
+    //         , down: function () { 
+    //             let sid = shape.id();
+    //             let realShape = SVG.get(sid);
+    //             let x = Math.floor(oldX * imgSelected.size.imageScale / oldZoomScale);
+    //             let y = Math.floor(oldY * imgSelected.size.imageScale / oldZoomScale);
+    //             realShape.move(x, y);
+    //             // updateShapeDetailInStore(realShape.id(), realShape.rbox(myCanvas), getPoints(realShape));
+    //         }
+    //         , call: false //-> this makes sure the move is registered but not performed again after dragging
+    //     })
+
+    //     shape.forget('oldX')
+    //     shape.forget('oldY')
+    //     shape.forget('oldZoomScale')
+    //     // e.preventDefault();
+    //     // shape.fire('mouseup');
+    //     // parentShape.fire('mouseup');
+    // });
 
     shape.on('resizestart', function (e) {
         console.log('resizestart');

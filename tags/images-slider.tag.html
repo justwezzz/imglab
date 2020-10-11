@@ -49,6 +49,27 @@
 
         this.on('mount', function () {
 
+            console.log('test');
+            function readImageFilesTest(e) {
+                let self = this;
+                $.ajax({
+                    url: 'https://httpbin.org/image/png',
+                    cache: false,
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        data.name = 'test.png';
+                        readImageFile.call(self,data);
+                    },
+                    error: function () {
+                    }
+                })
+            }
+            // readImageFilesTest();
+
+
             $("#leftpaddle").click(function (e) {
                 tag.slideleft(e);
             })
@@ -111,11 +132,10 @@
                     };
                     updateDimentions(e.target.result, imgData);
                     tag.thumbnails.push(imgData);
-
-                    this.trigger("uploadimages");
+                    tag.trigger("uploadimages");
                 }
                 reader.onloadend = e => {
-                    this.update();
+                    tag.update();
                 }
                 reader.readAsDataURL(f);
             }

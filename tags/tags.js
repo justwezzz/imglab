@@ -360,7 +360,7 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
                         alreadyDrawing = false;
                         if( !selectedTool.validate(currentTool)){
                             currentTool.remove();
-                            currentTool.remove();
+                            // currentTool.remove();
                         }else{
                             attachShapeData(currentTool);
 
