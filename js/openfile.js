@@ -34,15 +34,26 @@ function readDataFile(e){
             }else if(dataFile.name.endsWith(".fpp")){
                 loadFpp(e.target.result);
             }else if(dataFile.name.endsWith(".xml")){
-                loadDlibXml(e.target.result);
+                // loadDlibXml(e.target.result);
+                loadVOCFile(e.target.result);
             }else{
                 console.log("Not supported");
             }
+            eventBus.trigger('area_update');
         };
 
         reader.readAsText(input.files[0]);
     }
     input.value = null;
+}
+
+
+var loadVOCFile = function(data){
+    var obj = parser.parse(data,{
+        ignoreAttributes : false,
+        attributeNamePrefix : "",
+    });
+    pascalVocFormater.fromPascalVOC(obj);
 }
 
 var loadJSONFile = function(data){
@@ -54,6 +65,7 @@ var loadProjectFile = function(data){
     //labellingData =  JSON.parse(data);
 }
 var loadDlibXml = function(data){
+    console.log('loadDlibXml',data);
     var obj = parser.parse(data,{
         ignoreAttributes : false,
         attributeNamePrefix : "",

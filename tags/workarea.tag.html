@@ -170,6 +170,12 @@
             drawOnCanvas();
         })
 
+        eventBus.on('area_update',function(){
+            console.log('area_update')
+            myCanvas.clear();
+            drawOnCanvas();
+        })
+
         /**
          * Removes listeners when unmounting tag to prevent multiple instances of keyup and click from firing
          */

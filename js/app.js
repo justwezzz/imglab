@@ -79,3 +79,8 @@ function pDistance( x1, y1, x2, y2, x, y) {
     var dy = y - yy;
     return Math.sqrt(dx * dx + dy * dy);
   }
+
+  function cleanCatch(){
+      localStorage.removeItem('labellingData');
+  }
+  cleanCatch();

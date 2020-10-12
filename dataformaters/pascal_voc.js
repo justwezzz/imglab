@@ -1,10 +1,46 @@
 var pascalVocFormater = {
     fromPascalVOC : function(pascalVocData){
-        if (!labellingData[pascalVocData.filename] ){
-            labellingData[pascalVocData.filename] = {
-                shapes : []
-            }
+        console.log('fromPascalVOC',pascalVocData);
+        let idNumber = 1000;
+        let idPrefix = "SvgjsRect";
+        let annotation = pascalVocData.annotation;
+        let data = {
+            imagename:annotation.filename,
+            attributes:[],
+            tags:[],
+            size:annotation.size,
+            shapes:[],
+            shapeIndex:0,
+            pointIndex:0,
+            featurePointSize:3,
         }
+        let rects = annotation.object;
+        for (let index = 0; index < rects.length; index++) {
+            let rect = rects[index];
+            let rect_bndbox = rect.bndbox;
+            let rect_width=rect_bndbox.xmax-rect_bndbox.xmin;
+            let rect_height=rect_bndbox.ymax-rect_bndbox.ymin;
+            let points = [rect_bndbox.xmin,rect_bndbox.ymin,rect_width,rect_height];
+            let bbox = {
+                x:rect_bndbox.xmin,
+                y:rect_bndbox.ymin,
+                w:rect_width,
+                h:rect_height
+            }
+            let shape = {
+                id:idPrefix+idNumber++,
+                label:rect.name,
+                attributes:[],
+                tags:[],
+                type:"rect",
+                points:points,
+                bbox:bbox
+            }
+            data.shapes.push(shape);
+        }
+        console.log(data);
+        // return data;
+        labellingData[annotation.filename] = data;
     },
     toPascalVOC : function(){
 

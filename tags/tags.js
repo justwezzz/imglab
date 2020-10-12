@@ -337,6 +337,11 @@ riot.tag2('workarea', '<div id="canvas-container"> <img id="img" riot-src="{opts
 
         this.on('mount',function() {
 
+            // $(window).on('test', function() {
+            //     console.log('test trigger');
+            //     drawOnCanvas();
+            //   });
+
             myCanvas = new SVG('work-canvas').size(opts.img.size.width, opts.img.size.height) ;
 
             drawOnCanvas();
