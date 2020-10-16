@@ -20,8 +20,11 @@ function openDataFile(){
 
 function readDataFile(e){
     var input = e.target || e.srcElement;
-    if (input.files && input.files[0]) {
-        var dataFile = input.files[0];
+    let e_type = e.toString();
+    let e_is_file = e_type.includes("File");
+
+    if (e_is_file || (input.files && input.files[0])) {
+        var dataFile = e_is_file?e:input.files[0];
         
         var reader = new FileReader();
         reader.onload = function (e) {
@@ -42,9 +45,10 @@ function readDataFile(e){
             eventBus.trigger('area_update');
         };
 
-        reader.readAsText(input.files[0]);
+        reader.readAsText(dataFile);
     }
-    input.value = null;
+    if(!e_is_file)
+        input.value = null;
 }
 
 
